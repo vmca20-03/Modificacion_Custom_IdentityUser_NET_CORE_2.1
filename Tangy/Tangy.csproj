@@ -11,10 +11,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Cart\Index.cshtml" />
     <None Include="Views\Coupons\Create.cshtml" />
     <None Include="Views\Coupons\Delete.cshtml" />
     <None Include="Views\Coupons\Edit.cshtml" />
     <None Include="Views\Coupons\Index.cshtml" />
+    <None Include="Views\Order\Confirm.cshtml" />
+    <None Include="Views\Order\ManageOrder.cshtml" />
+    <None Include="Views\Order\OrderHistory.cshtml" />
+    <None Include="Views\Order\OrderPickup.cshtml" />
+    <None Include="Views\Order\OrderPickupDetails.cshtml" />
+    <None Include="Views\Order\OrderSummaryExport.cshtml" />
+    <None Include="Views\Shared\Components\UserName\Default.cshtml" />
     <None Include="Views\Users\Edit.cshtml" />
     <None Include="Views\Users\Index.cshtml" />
     <None Include="Views\Users\Lock.cshtml" />

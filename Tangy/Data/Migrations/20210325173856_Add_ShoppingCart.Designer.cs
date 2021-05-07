@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tangy.Data;
 
 namespace Tangy.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210325173856_Add_ShoppingCart")]
+    partial class Add_ShoppingCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,61 +263,6 @@ namespace Tangy.Data.Migrations
                     b.ToTable("MenuItem");
                 });
 
-            modelBuilder.Entity("Tangy.Models.OrderDetails", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Count");
-
-                    b.Property<string>("Description");
-
-                    b.Property<int>("MenuItemId");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("OrderId");
-
-                    b.Property<double>("Price");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MenuItemId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderDetails");
-                });
-
-            modelBuilder.Entity("Tangy.Models.OrderHeader", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comments");
-
-                    b.Property<string>("CouponCode");
-
-                    b.Property<DateTime>("OrderDate");
-
-                    b.Property<double>("OrderTotal");
-
-                    b.Property<DateTime>("PickUpTime");
-
-                    b.Property<string>("Status");
-
-                    b.Property<string>("UserId")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("OrderHeader");
-                });
-
             modelBuilder.Entity("Tangy.Models.ShoppingCart", b =>
                 {
                     b.Property<int>("Id")
@@ -406,27 +353,6 @@ namespace Tangy.Data.Migrations
                     b.HasOne("Tangy.Models.SubCategory", "SubCategory")
                         .WithMany()
                         .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Tangy.Models.OrderDetails", b =>
-                {
-                    b.HasOne("Tangy.Models.MenuItem", "MenuItem")
-                        .WithMany()
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Tangy.Models.OrderHeader", "OrderHeader")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Tangy.Models.OrderHeader", b =>
-                {
-                    b.HasOne("Tangy.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

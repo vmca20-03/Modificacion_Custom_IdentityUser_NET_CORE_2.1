@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Tangy.Data;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 using Tangy.Models;
+using Tangy.Services;
 
 namespace Tangy.Areas.Identity.Pages.Account.Manage
 {
@@ -17,12 +14,12 @@ namespace Tangy.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly Services.IEmailSender _emailSender;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+            Services.IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -66,8 +63,6 @@ namespace Tangy.Areas.Identity.Pages.Account.Manage
         {
             var user = await _userManager.GetUserAsync(User);
 
-            //ApplicationUser appliUser = (ApplicationUser)user;
-
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -90,13 +85,14 @@ namespace Tangy.Areas.Identity.Pages.Account.Manage
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            //IsEmailConfirmed = false;
 
             return Page();
         }
 
+        //Registrar un usuario
         public async Task<IActionResult> OnPostAsync()
         {
-        
             var user = await _userManager.GetUserAsync(User);
 
             if (!ModelState.IsValid)
@@ -189,10 +185,12 @@ namespace Tangy.Areas.Identity.Pages.Account.Manage
                 pageHandler: null,
                 values: new { userId = userId, code = code },
                 protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            //await _emailSender.SendEmailAsync(
+            //    email,
+            //    "Confirm your email",
+            //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            await _emailSender.SendEmailConfirmationAsync(email, callbackUrl);
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();

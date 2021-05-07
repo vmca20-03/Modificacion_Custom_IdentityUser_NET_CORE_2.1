@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Tangy.Data;
 using Tangy.Models;
+using Tangy.Services;
 using Tangy.Utility;
 
 namespace Tangy.Areas.Identity.Pages.Account
@@ -21,7 +19,7 @@ namespace Tangy.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly Services.IEmailSender _emailSender;
 
         private readonly ApplicationDbContext _db;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -30,7 +28,7 @@ namespace Tangy.Areas.Identity.Pages.Account
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
+            Services.IEmailSender emailSender,
             ApplicationDbContext db,
             RoleManager<IdentityRole> roleManager)
         {
@@ -90,14 +88,6 @@ namespace Tangy.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                //var user = new IdentityUserCustomized {
-                //                                      UserName = "NombreUsuario123",
-                //                                      Email = Input.Email,
-                //                                      PhoneNumber = Input.PhoneNumber,
-                //                                      FirstName="Primer Nombre",
-                //                                      LastName="Segundo Nombre"
-                //                                     };
-
                 var user = new ApplicationUser
                 {
                     UserName = Input.Email,
@@ -113,6 +103,26 @@ namespace Tangy.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+
+                    //admin@gmail.com
+                    //ph : 1112223333
+                    //name : Admin Spark
+
+                    if (!await _roleManager.RoleExistsAsync(SD.AdminEndUser))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(SD.AdminEndUser));
+                        var userAdmin = new ApplicationUser
+                        {
+                            UserName = "admin@gmail.com",
+                            Email = "admin@gmail.com",
+                            PhoneNumber = "1112223333",
+                            FirstName = "Admin",
+                            LastName = "Spark"
+                        };
+                        var resultAdmin = await _userManager.CreateAsync(userAdmin, "Admin123*");
+                        await _userManager.AddToRoleAsync(userAdmin, SD.AdminEndUser);
+                    }
+
                     if (!await _roleManager.RoleExistsAsync(SD.AdminEndUser))
                     {
                         await _roleManager.CreateAsync(new IdentityRole(SD.AdminEndUser));
@@ -125,8 +135,6 @@ namespace Tangy.Areas.Identity.Pages.Account
 
                     await _userManager.AddToRoleAsync(user, SD.AdminEndUser);
 
-                    //await _userManager.AddToRoleAsync(user, SD.CustomerEndUser);
-
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -136,10 +144,13 @@ namespace Tangy.Areas.Identity.Pages.Account
                         values: new { userId = user.Id, code = code },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    await _emailSender.SendEmailConfirmationAsync(user.Email, callbackUrl);
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
+                    HttpContext.Session.SetInt32("CartCount", 0);//AGREGADO POSTERIORMENTE(PARA IMPLEMENTAR SHOPPING CART)
                     return LocalRedirect(returnUrl);
                 }
 

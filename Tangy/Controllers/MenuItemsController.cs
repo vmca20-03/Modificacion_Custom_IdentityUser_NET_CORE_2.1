@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Tangy.Data;
 using Tangy.Models;
 using Tangy.Models.MenuItemViewModels;
@@ -207,6 +207,7 @@ namespace Tangy.Controllers
 
             return View(MenuItemVM);
         }
+
 
         //GET : Delete MenuItem
         public async Task<IActionResult> Delete(int? id)

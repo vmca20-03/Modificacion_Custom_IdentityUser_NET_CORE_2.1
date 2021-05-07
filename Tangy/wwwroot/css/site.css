@@ -43,10 +43,10 @@
     background-color: #343A40;
 }
 
-.footer > .cont {
-    padding-left: 15px;
-    padding-right: 15px;
-}
+    .footer > .cont {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 
 html {
     position: relative;

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Tangy.Models;
+using Microsoft.AspNetCore.Http;
+using Tangy.Data;
 
 namespace Tangy.Areas.Identity.Pages.Account
 {
@@ -18,11 +20,13 @@ namespace Tangy.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _db;//AGREGADO POSTERIORMENTE(PARA IMPLEMENTAR SHOPPING CART)
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _db = db;
         }
 
         [BindProperty]
@@ -77,6 +81,12 @@ namespace Tangy.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
+                    //AGREGADO POSTERIORMENTE(PARA IMPLEMENTAR SHOPPING CART
+                    var user = _db.Users.Where(u => u.Email == Input.Email).FirstOrDefault();
+                    var count = _db.ShoppingCart.Where(u => u.ApplicationUserId == user.Id).ToList().Count;
+                    HttpContext.Session.SetInt32("CartCount", count);
+                    //AGREGADO POSTERIORMENTE(PARA IMPLEMENTAR SHOPPING CART
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

@@ -1,4 +1,6 @@
 ﻿@using Tangy.Utility
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
 <html>
@@ -7,23 +9,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Tangy</title>
     <environment include="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/Typeahead.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/jquery-ui.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.css" />
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
     </environment>
     <environment exclude="Development">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-        <link href="~/css/jquery-ui.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/Typeahead.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/jquery-ui.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.css" />
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
     </environment>
 </head>
 <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" asp-action="Index" asp-controller="Home">Tangy_Test</a>
+        <a class="navbar-brand" asp-action="Index" asp-controller="Home">Tangy(TEST)</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 @if (User.IsInRole(SD.AdminEndUser) || User.IsInRole(SD.CustomerEndUser))
@@ -45,25 +49,38 @@
                         </div>
                     </li>
                 }
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Order
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Manage Order</a>
-                            <a class="dropdown-item" href="#">Order Pickup</a>
-                            <a class="dropdown-item" href="#">Download Order Details</a>
-                        </div>
-                    </li>
-                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Order
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-action="ManageOrder" asp-controller="Order">Manage Order</a>
+                        <a class="dropdown-item" asp-action="OrderPickup" asp-controller="Order">Order Pickup</a>
+                        <a class="dropdown-item" asp-controller="Order" asp-action="OrderSummaryExport">Download Order Details</a>
+                    </div>
+                </li>
+
                 @if (User.IsInRole(SD.AdminEndUser) || User.IsInRole(SD.CustomerEndUser))
                 {
-                    <li style="color:white;">
-                        <a asp-controller="Cart" asp-action="Index" class="nav-link">
-                            <i class="fas fa-shopping-cart"></i>
-                            &nbsp;(0)
-                        </a>
-                    </li>
+                    @if (HttpContextAccessor.HttpContext.Session.GetInt32("CartCount") != null)
+                    {
+                        <li style="color:white;">
+                            <a asp-controller="Cart" asp-action="Index" class="nav-link">
+                                <i class="fas fa-shopping-cart"></i>
+                                &nbsp;(@HttpContextAccessor.HttpContext.Session.GetInt32("CartCount"))
+                            </a>
+                        </li>
+
+                    }
+                    else
+                    {
+                        <li style="color:white;">
+                            <a asp-controller="Cart" asp-action="Index" class="nav-link">
+                                <i class="fas fa-shopping-cart"></i>
+                                &nbsp;(0)
+                            </a>
+                        </li>
+                    }
                 }
             </ul>
         </div>
@@ -91,19 +108,10 @@
         <script src="~/js/jquery-ui.min.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
-        </script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                crossorigin="anonymous"
-                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
-        </script>
+        <script src="~/lib/jquery/dist/jquery.js" asp-append-version="true"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js" asp-append-version="true"></script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
+        <script src="~/js/jquery-ui.min.js" asp-append-version="true"></script>
     </environment>
 
     @RenderSection("Scripts", required: false)

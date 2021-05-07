@@ -19,13 +19,14 @@ namespace Tangy.Services
             SmtpClient client = new SmtpClient("smtp.gmail.com", 587)
             {
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("ben.spark92@gmail.com", "password"),
-                EnableSsl = true
+                EnableSsl = true,
+                Credentials = new NetworkCredential("vmca20@gmail.com", "superclavemaestra123")
             };
+
 
             MailMessage mailMessage = new MailMessage
             {
-                From = new MailAddress("ben.spark92@gmail.com")
+                From = new MailAddress("vmca20@gmail.com")
             };
             mailMessage.To.Add(email);
             mailMessage.Body = message;
